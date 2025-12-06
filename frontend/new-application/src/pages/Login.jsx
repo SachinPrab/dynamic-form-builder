@@ -28,7 +28,7 @@ function LoginWithAirtable() {
       code_challenge_method: "S256",
     });
 
-    window.location.href = `${import.meta.env.VITE_API_URL}/oauth/airtable/connect`;
+    window.location.href = `https://airtable.com/oauth2/v1/authorize?${params.toString()}`;
   };
 
   return (
