@@ -9,7 +9,7 @@ export default function Form() {
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false); 
-
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   // Fetch form
   useEffect(() => {
     const userId = JSON.parse(sessionStorage.getItem("currentUser"))?._id;
@@ -19,7 +19,7 @@ export default function Form() {
     }
 
     setLoading(true);
-    fetch(`http://localhost:4000/api/form/${formId}`, {
+    fetch(`${API_URL}/api/form/${formId}`, {
       headers: { "x-user-id": userId.toString() },
     })
       .then((res) => {
@@ -74,7 +74,7 @@ export default function Form() {
 
       // 3. Send the filtered answers payload to the backend
       const response = await fetch(
-        `http://localhost:4000/api/form/${formId}/submit`,
+        `${API_URL}/api/form/${formId}/submit`,
         {
           method: "POST",
           headers: {

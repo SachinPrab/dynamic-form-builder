@@ -6,7 +6,7 @@ export default function Callback() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
     if (code) {
       setStatus("Authorization code received: " + code);
     } else {
@@ -14,7 +14,7 @@ export default function Callback() {
       return;
     }
 
-    fetch("http://localhost:4000/oauth/token", {
+    fetch(`${API_URL}/oauth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

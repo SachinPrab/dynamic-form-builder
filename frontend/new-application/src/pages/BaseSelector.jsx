@@ -14,7 +14,7 @@ export default function BaseSelector() {
   const [error, setError] = useState("");
 
   const user = JSON.parse(sessionStorage.getItem("currentUser"));
-
+ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   if (!user || !user._id) {
     setError("Not logged in!");
     // Early exit if not logged in to avoid running hooks
@@ -51,7 +51,7 @@ export default function BaseSelector() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:4000/api/bases", {
+      const res = await fetch(`${API_URL}/api/bases`, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -81,7 +81,7 @@ export default function BaseSelector() {
     setError("");
     try {
       const res = await fetch(
-        `http://localhost:4000/api/bases/${baseId}/tables`,
+        `${API_URL}/api/bases/${baseId}/tables`,
         {
           method: "GET",
           credentials: "include",
@@ -113,7 +113,7 @@ export default function BaseSelector() {
     setError("");
     try {
       const res = await fetch(
-        `http://localhost:4000/api/bases/${baseId}/tables/${tableId}/fields`,
+        `${API_URL}/api/bases/${baseId}/tables/${tableId}/fields`,
         {
           method: "GET",
           credentials: "include",
@@ -161,7 +161,7 @@ const handleSubmit = async () => {
   );
 
   try {
-    const res = await fetch("http://localhost:4000/api/form", {
+    const res = await fetch(`${API_URL}/api/form`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
