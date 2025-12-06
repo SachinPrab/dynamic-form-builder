@@ -1,102 +1,63 @@
-// routes/token.js (or wherever your token route lives)
-
 import express from "express";
 import User from "../models/User.js";
-import dotenv from "dotenv";
 
-dotenv.config();
 const router = express.Router();
 
-// POST /oauth/token
+// GET callback - redirect to FRONTEND via API_URL
+router.get("/callback", (req, res) => {
+  const { code, state } = req.query;
+  const API_URL = process.env.API_URL || "http://localhost:4000";  // Backend API
+  const frontendPath = "/callback";  // Frontend route
+  
+  // Redirect to frontend via API proxy or directly
+  res.redirect(`${apiUrl}${frontendPath}?code=${code}&state=${state}`);
+});
+
+// POST token exchange (unchanged)
 router.post("/token", async (req, res) => {
   const { code, code_verifier } = req.body;
-
-  if (!code || !code_verifier) {
-    return res.status(400).json({ error: "Missing code or code_verifier" });
-  }
-
+  
   try {
-    // Exchange authorization code for tokens using PKCE + Confidential client (recommended)
     const tokenResponse = await fetch("https://airtable.com/oauth2/v1/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        // This is the proper way for confidential clients
-        Authorization:
-          "Basic " +
-          Buffer.from(
-            `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
-          ).toString("base64"),
+        Authorization: `Basic ${Buffer.from(`${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`).toString("base64")}`,
       },
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
         redirect_uri: process.env.AIRTABLE_REDIRECT_URI,
-        code_verifier,
-        // DO NOT send client_id or client_secret in body when using Basic Auth header
-      }),
+        code_verifier
+      })
     });
 
     const tokenData = await tokenResponse.json();
-
-    // Log for debugging (you can remove later)
-    console.log("Airtable token status:", tokenResponse.status);
-    console.log("Airtable token response:", tokenData);
-
-    if (!tokenResponse.ok || tokenData.error) {
-      return res.status(tokenResponse.status || 400).json({
-        error: tokenData.error || "Token exchange failed",
-        details: tokenData,
-      });
+    
+    if (!tokenResponse.ok) {
+      return res.status(400).json({ error: tokenData.error || "Token exchange failed" });
     }
 
-    // Fetch user profile to get Airtable user ID
     const profileResponse = await fetch("https://api.airtable.com/v0/meta/whoami", {
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`,
-      },
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
     });
-
-    const profileData = await profileResponse.json();
-
-    if (!profileResponse.ok) {
-      return res.status(profileResponse.status).json(profileData);
-    }
-
-    // Save or update user in MongoDB
-    const updatedUser = await User.findOneAndUpdate(
-    { airtableUserId: profileData.id },
-{
-  airtableUserId: profileData.id,
-  accessToken: tokenData.access_token,
-  refreshToken: tokenData.refresh_token,
-  loginTimestamp: new Date(),
-},
-
+    
+    const profile = await profileResponse.json();
+    const user = await User.findOneAndUpdate(
+      { airtableUserId: profile.id },
+      { 
+        airtableUserId: profile.id, 
+        accessToken: tokenData.access_token, 
+        refreshToken: tokenData.refresh_token 
+      },
+      { upsert: true, new: true }
     );
 
-    res.json({
-      success: true,
-      user: updatedUser,
-      message: "Login successful",
-    });
-  } catch (error) {
-    console.error("Token exchange error:", error);
-    res.status(500).json({ error: "Server error during login" });
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error("Token error:", err);
+    res.status(500).json({ error: "Server error" });
   }
-});
-
-// Add this route for production callback handling
-router.get("/airtable/callback", async (req, res) => {
-  const { code, state } = req.query;
-  
-  if (!code) {
-    return res.status(400).json({ error: "No authorization code" });
-  }
-  
-  // Redirect to frontend with code (Vercel/Render)
-  const API_URL = import.meta.env.AIRTABLE_REDIRECT_URI || "http://localhost:5173";
-  res.redirect(`${API_URL}/callback?code=${code}&state=${state}`);
 });
 
 export default router;
