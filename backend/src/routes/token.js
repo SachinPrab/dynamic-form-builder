@@ -86,4 +86,17 @@ router.post("/token", async (req, res) => {
   }
 });
 
+// Add this route for production callback handling
+router.get("/airtable/callback", async (req, res) => {
+  const { code, state } = req.query;
+  
+  if (!code) {
+    return res.status(400).json({ error: "No authorization code" });
+  }
+  
+  // Redirect to frontend with code (Vercel/Render)
+  const API_URL = import.meta.env.AIRTABLE_REDIRECT_URI || "http://localhost:5173";
+  res.redirect(`${API_URL}/callback?code=${code}&state=${state}`);
+});
+
 export default router;
