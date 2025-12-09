@@ -10,7 +10,7 @@ import webhookRouter from "./src/routes/webhookRouter.js";
 const app = express();
 
 // Environment
-const FRONTEND_URL = process.env.FRONTEND_URL || "https://dynamic-form-builder.vercel.app";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://dynamic-form-builder-ab3q.vercel.app";
 
 // Middleware
 app.use(express.json());
