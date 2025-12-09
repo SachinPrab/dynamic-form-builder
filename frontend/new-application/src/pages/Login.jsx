@@ -1,6 +1,6 @@
 import { generateCodeVerifier, generateCodeChallenge, generateState } from "../pkce.js";
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
-const REDIRECT_URI = import.meta.env.VITE_API_URL || "http://localhost:5173/callback";
+const REDIRECT_URI = import.meta.env.VITE_AIRTABLE_REDIRECT_URI;
 const SCOPES = [
   "data.records:read",
   "data.records:write",

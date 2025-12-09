@@ -6,11 +6,11 @@ const router = express.Router();
 // GET callback - redirect to FRONTEND via API_URL
 router.get("/callback", (req, res) => {
   const { code, state } = req.query;
-  const API_URL = process.env.API_URL || "http://localhost:4000";  // Backend API
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";  // Backend API
   const frontendPath = "/callback";  // Frontend route
   
   // Redirect to frontend via API proxy or directly
-  res.redirect(`${apiUrl}${frontendPath}?code=${code}&state=${state}`);
+  res.redirect(`${API_URL}${frontendPath}?code=${code}&state=${state}`);
 });
 
 // POST token exchange (unchanged)
