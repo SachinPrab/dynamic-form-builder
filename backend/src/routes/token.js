@@ -13,6 +13,17 @@ router.get("/callback", (req, res) => {
   res.redirect(`${FRONTEND_URL}${frontendPath}?code=${encodeURIComponent(code || "")}&state=${encodeURIComponent(state || "")}`);
 });
 
+// Also handle /oauth/airtable/callback coming directly from Airtable for deployments
+router.get("/airtable/callback", (req, res) => {
+  const { code, state } = req.query;
+  const FRONTEND_URL = process.env.API_URL || process.env.FRONTEND_URL || "http://localhost:5173";
+  const frontendPath = "/oauth/airtable/callback";
+
+  // If Airtable redirects straight to /oauth/airtable/callback on the backend host,
+  // forward the user to the frontend callback route so the SPA can complete the flow.
+  res.redirect(`${FRONTEND_URL}${frontendPath}?code=${encodeURIComponent(code || "")}&state=${encodeURIComponent(state || "")}`);
+});
+
 // POST token exchange (unchanged)
 router.post("/token", async (req, res) => {
   const { code, code_verifier } = req.body;
