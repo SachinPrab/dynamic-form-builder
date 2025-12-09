@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/oauth/airtable/callback", "destination": "/" }
+    { "source": "/oauth/airtable/callback", "destination": "/oauth/airtable/callback" }
   ]
 }
