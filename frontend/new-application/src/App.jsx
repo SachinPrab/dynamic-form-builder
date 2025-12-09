@@ -10,7 +10,7 @@ const App = () => {
     <Router>  {/* ✅ Wrap ONCE at root */}
       <Routes>
         <Route path="/" element={<LoginWithAirtable />} />
-        <Route path="/callback" element={<Callback />} />
+        <Route path="/oauth/airtable/callback" element={<Callback />} />
         <Route path="/bases" element={<BaseSelector />} />
         <Route path="/form/:formId" element={<Form />} />
       </Routes>
