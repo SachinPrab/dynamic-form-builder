@@ -1,4 +1,3 @@
-// backend/server.js
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./db.js";
@@ -7,13 +6,17 @@ import tokenRouter from "./src/routes/token.js";
 import formRouter from "./src/routes/form.js";
 import responseRouter from "./src/routes/responseRouter.js";
 import webhookRouter from "./src/routes/webhookRouter.js";
+
 const app = express();
+
+// Environment
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://dynamic-form-builder.vercel.app";
 
 // Middleware
 app.use(express.json());
-const FRONTEND_URL = process.env.FRONTEND_URL || process.env.VITE_API_URL || "http://localhost:5173";
 app.use(cors({
   origin: FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
 }));
 
@@ -21,11 +24,15 @@ app.use(cors({
 connectDB();
 
 // Routes
-app.use("/api", airtableRouter); // /api/bases, /api/tables, etc.
-app.use("/oauth", tokenRouter);  // /oauth/token
-app.use("/api", formRouter);      // /api/form
-app.use("/api/forms", responseRouter); // /api/responses
-app.use("/webhooks", webhookRouter); // /webhooks/airtable
-// Start server
-const PORT = 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.use("/api", airtableRouter);
+app.use("/oauth", tokenRouter);
+app.use("/api", formRouter);
+app.use("/api/forms", responseRouter);
+app.use("/webhooks", webhookRouter);
+
+// Render port binding
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
